@@ -1,0 +1,43 @@
+workflows:
+  android-release:
+    name: EasyPay Release Build
+    instance_type: mac_mini_m1
+    max_build_duration: 60
+    environment:
+      android_sdk:
+        api_level: 34
+      vars:
+        PACKAGE_NAME: "com.easypay"
+        GRADLE_OPTS: "-Xmx2048m"
+    triggering:
+      events:
+        - push
+      branch:
+        - main
+    scripts:
+      - name: Set up signing config
+        script: |
+          echo $KEYSTORE_FILE | base64 --decode > /tmp/keystore.jks
+          cat >> local.properties <<EOF
+          KEYSTORE_PATH=/tmp/keystore.jks
+          KEYSTORE_PASSWORD=$KEYSTORE_PASSWORD
+          KEY_ALIAS=$KEY_ALIAS
+          KEY_PASSWORD=$KEY_PASSWORD
+          EOF
+      - name: Build release APK
+        script: |
+          cd $CM_BUILD_DIR
+          ./gradlew assembleRelease \
+            -Pandroid.injected.signing.store.file=/tmp/keystore.jks \
+            -Pandroid.injected.signing.store.password=$KEYSTORE_PASSWORD \
+            -Pandroid.injected.signing.key.alias=$KEY_ALIAS \
+            -Pandroid.injected.signing.key.password=$KEY_PASSWORD
+    artifacts:
+      - app/build/outputs/apk/release/app-release.apk
+    publishing:
+      email:
+        recipients:
+          - $USER_EMAIL
+        notify:
+          success: true
+          failure: true

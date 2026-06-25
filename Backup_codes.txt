@@ -1,0 +1,266 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!DOCTYPE html>
+<html>
+<head>
+
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta id="viewport" name="viewport"
+	content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0">
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="-1" />
+<meta http-equiv="Cache-Control" content="no-cache" />
+   
+<title>
+	Samsung account
+</title>
+
+
+<link href="https://us.account.samsung.com/mobile/myprofile/static/v01/css/default.css?ver=2.11.2"
+	rel="stylesheet">
+<!-- link href="https://us.account.samsung.com/mobile/myprofile/static/v01/css/font.css?ver=2.11.2"
+	rel="stylesheet"-->
+
+<link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/font-nanum/1.0/nanumgothic/nanumgothic.css?ver=2.11.2" />
+<link
+	href="https://us.account.samsung.com/mobile/myprofile/static/v01/css/myprofile.css?ver=2.11.2"
+	rel="stylesheet">
+<link
+	href="https://us.account.samsung.com/mobile/myprofile/static/v01/css/myprofile.addition.css?ver=2.11.2"
+	rel="stylesheet">
+	
+
+	
+	
+	
+			
+	
+	
+		
+
+
+<script
+	src="https://us.account.samsung.com/mobile/myprofile/static/v01/js/jquery.min.js?ver=2.11.2"></script>
+<script
+	src="https://us.account.samsung.com/mobile/myprofile/static/v01/js/jquery-ui.min.js?ver=2.11.2"></script>	
+<script
+	src="https://us.account.samsung.com/mobile/myprofile/static/v01/js/jquery.validate.min.js?ver=2.11.2"></script>
+<script
+	src="https://us.account.samsung.com/mobile/myprofile/static/v01/js/bootstrap.min.js?ver=2.11.2"></script>
+<script
+	src="https://us.account.samsung.com/mobile/myprofile/static/v01/js/myprofile.min.js?ver=2.11.2"></script>
+<script type="text/javascript">
+
+	var myprofile = {
+		tpl : {
+			loading : '<span class="loading">Loading...</span>',
+			rebtn : '<button type="button" class="btn btn-default btn-sm">Refresh</button>'
+		},
+		modalpage : {
+			url : '/mobile/myprofile/modalControl.do'
+		},
+		csrfToken : 'YWUwOGYwYmMtYzBhNi00ZTA4LWJjMjEtM2M0MDEwYjcyMTc1',
+		modalMode : false
+	};
+
+	// 메세지 확장
+	(function($) {
+		$.extend(SSP.messages, {
+			error : {
+				'errHeader' : "Error Message",
+				'err401' : "Sorry, you are not authorised to view the page you requested. <br />If you have any questions, please contact the administrator.",
+				'err403' : "Sorry, the resource you want to access is forbidden, so this request has been refused. <br />If you have any questions, please contact the administrator.",
+				'err404' : "Sorry, We could not find the page you requested.<br />Please Confirm URL and Try again.",
+				'err408' : "Your session has been terminated. Please try again.",
+				'err500' : "Sorry, an error occurred while processing the page you requested. <br />Please try again later.",
+				'errNetwork' : "현재 네트워크 장애로 일부 서비스의 조회가 불가능합니다. <br />다시 시도해주세요."
+			},
+			common : {
+				'select' : "Select"
+			}
+		});
+
+		$.extend(SSP.config, {
+			staticUrl : 'https://us.account.samsung.com/mobile/myprofile/static/v01'
+		});
+		
+			
+		
+		$(document).ready(function() {
+			SSP.console.append($('#viewport').attr('content'));
+			$('html').attr('lang', 'en');
+
+			// (한국) 메세지 모달 텍스트의 word 줄바꿈 적용
+			if ('KO' == 'EN') {
+				$(">p:has(>p,>br) , >p:not(:has(>))", $(".modal-body:not(:has(.inner-scroller)),.insert_white_space")).each(function() {
+					//하위 태그 제외					
+					var exclude = $(this).html().match(/<.*?>/g);
+					var target = $(this).html().split(/<.*?>/g);
+					var result = '';
+					for(var e in target){
+						result +=  "<span style='white-space:nowrap'>";
+						result += target[e].split(" ").join("</span> <span style='white-space:nowrap'>") + "</span>";
+						if(exclude && exclude[e]) result += exclude[e];
+					}
+					$(this).html(result);
+				});
+			}
+		
+		});
+
+	}(jQuery));
+	
+	//RTL이 아닐때는 ltr 속성 제거
+	var timer = function(callback){
+		setTimeout(function(){callback();},2000); //ajax부분에도 ltr 있는곳이 있어서 2초 지연 후 적용되도록 한다.
+	};
+	function deleteLtr() {
+		if("LTR".indexOf("RTL") == -1){
+			$("[dir='ltr']").each(function(){
+				var contents = $(this).text();
+				var tag = $(this).get(0).tagName;
+				var thisClassName = $(this).attr("class");
+				var thisId = $(this).attr("id"); 
+				//console.log(thisClassName);
+				var html = $('<'+tag+'/>').attr('id',thisId).addClass(thisClassName).html(contents);
+				console.log(html);
+				$(this).replaceWith(html);
+			});
+		}
+	};
+	(function($) {
+		$(document).ready(function() {
+			timer(function(){deleteLtr();});
+	});
+	}(jQuery));
+	//ltr 제거 끝
+	
+	function goBack(backUrl){
+		return function(event, data){
+			 var state = data.state;
+			  if (state.direction == 'back') {
+				  var url = state.url;
+				  if( url == 'undefined' || url == null || url == ""){
+					  url = backUrl;
+				  }  
+			  }
+		}
+	};
+	function isEmpty(str) {
+	    return (!str || 0 === str.length);
+	}
+
+	
+	
+	var myInfoUrl = "/mobile/myprofile/myinfo/myInfo.do";
+	
+	
+	
+
+	var closeUrl = "/mobile/myprofile/close.do"
+</script>
+
+
+<!-- google analytics -->
+<script>
+<!--  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','//www.google-analytics.com/analytics.js','ga');ga('create', 'UA-54340999-1', 'auto');ga('send', 'pageview');-->
+	<!-- 거부권 문제로 임시로 삭제처리 18/10/19 @author kjun.choi
+	var _gaq = _gaq || [];
+	_gaq.push([ '_setAccount', 'UA-54340999-1' ]);
+	_gaq.push(['_gat._anonymizeIp']);
+	_gaq.push([ '_trackPageview' ]);
+
+	(function() {
+		var ga = document.createElement('script');
+		ga.type = 'text/javascript';
+		ga.async = true;
+		ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		var s = document.getElementsByTagName('script')[0];
+		s.parentNode.insertBefore(ga, s);
+	})();
+	-->
+</script>
+
+
+</head>
+
+<body>
+	
+<header>
+	<h1>
+		Samsung account
+		 -US-
+	</h1>
+</header>	
+			<div class="body">
+			<div class="container">
+				<div class="errorArea">
+					<h2>Error Message</h2>
+					<p>
+						Sorry, an error occurred while processing the page you requested. <br />Please try again later.
+					</p>
+				</div><!-- //error -->
+			</div><!-- //container -->
+		</div><!-- //body -->
+	
+
+<footer>
+	
+		<p class="contactUs">
+			<a href="http://help.content.samsung.com/csweb/main/main.do" target="_blank">
+				Contact us
+			</a>
+		</p>
+	
+	Copyright &copy; Samsung Electronics Co., Ltd. All rights reserved.
+</footer>
+
+
+</body>
+</html>
+

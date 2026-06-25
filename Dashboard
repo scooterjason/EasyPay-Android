@@ -1,0 +1,135 @@
+import { trpc } from "@/lib/trpc";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { CreditCard, TrendingUp, Wallet } from "lucide-react";
+import { useLocation } from "wouter";
+
+export default function Dashboard() {
+  const [, navigate] = useLocation();
+  const { data: accounts, isLoading: accountsLoading } = trpc.bankAccounts.list.useQuery();
+  const { data: transactions, isLoading: transactionsLoading } = trpc.transactions.list.useQuery();
+
+  const totalTransactions = transactions?.length || 0;
+  const totalSpent = transactions?.reduce((sum, t) => sum + t.amount, 0) || 0;
+
+  if (accountsLoading || transactionsLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 pb-20">
+        <div className="px-4 py-6 space-y-4">
+          <Skeleton className="h-32 rounded-lg" />
+          <Skeleton className="h-24 rounded-lg" />
+          <Skeleton className="h-24 rounded-lg" />
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 pb-20">
+      {/* Header */}
+      <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white pt-6 pb-8 px-4">
+        <h1 className="text-2xl font-bold">Welcome Back</h1>
+        <p className="text-blue-100 text-sm mt-1">Manage your bank accounts and payments</p>
+      </div>
+
+      {/* Stats Cards */}
+      <div className="px-4 -mt-4 mb-6">
+        <div className="grid grid-cols-2 gap-3">
+          {/* Accounts Card */}
+          <Card className="p-4 border-0 shadow-md bg-white">
+            <div className="flex items-start justify-between">
+              <div>
+                <p className="text-xs text-slate-500 uppercase tracking-wide font-semibold">
+                  Accounts
+                </p>
+                <p className="text-2xl font-bold text-slate-900 mt-2">{accounts?.length || 0}</p>
+              </div>
+              <div className="p-2 bg-blue-100 rounded-lg">
+                <Wallet className="w-5 h-5 text-blue-600" />
+              </div>
+            </div>
+          </Card>
+
+          {/* Transactions Card */}
+          <Card className="p-4 border-0 shadow-md bg-white">
+            <div className="flex items-start justify-between">
+              <div>
+                <p className="text-xs text-slate-500 uppercase tracking-wide font-semibold">
+                  Transactions
+                </p>
+                <p className="text-2xl font-bold text-slate-900 mt-2">{totalTransactions}</p>
+              </div>
+              <div className="p-2 bg-green-100 rounded-lg">
+                <TrendingUp className="w-5 h-5 text-green-600" />
+              </div>
+            </div>
+          </Card>
+        </div>
+      </div>
+
+      {/* Total Spent */}
+      <div className="px-4 mb-6">
+        <Card className="p-6 border-0 shadow-md bg-gradient-to-br from-green-50 to-emerald-50">
+          <p className="text-xs text-slate-500 uppercase tracking-wide font-semibold">
+            Total Spent
+          </p>
+          <p className="text-3xl font-bold text-slate-900 mt-2">
+            ${(totalSpent / 100).toFixed(2)}
+          </p>
+          <p className="text-xs text-slate-600 mt-2">Across all transactions</p>
+        </Card>
+      </div>
+
+      {/* Quick Actions */}
+      <div className="px-4 mb-6">
+        <h2 className="text-sm font-semibold text-slate-900 uppercase tracking-wide mb-3">
+          Quick Actions
+        </h2>
+        <div className="space-y-3">
+          <Button
+            onClick={() => navigate("/tap-to-pay")}
+            className="w-full h-12 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all"
+          >
+            Tap to Pay
+          </Button>
+          <Button
+            onClick={() => navigate("/add-account")}
+            variant="outline"
+            className="w-full h-12 border-2 border-slate-300 text-slate-900 font-semibold rounded-lg hover:bg-slate-50"
+          >
+            Add Bank Account
+          </Button>
+        </div>
+      </div>
+
+      {/* Recent Accounts */}
+      {accounts && accounts.length > 0 && (
+        <div className="px-4 mb-6">
+          <h2 className="text-sm font-semibold text-slate-900 uppercase tracking-wide mb-3">
+            Your Accounts
+          </h2>
+          <div className="space-y-2">
+            {accounts.slice(0, 3).map((account) => (
+              <Card
+                key={account.id}
+                className="p-3 border-0 shadow-sm hover:shadow-md transition-shadow cursor-pointer bg-white"
+                onClick={() => navigate("/accounts")}
+              >
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-blue-100 rounded-lg">
+                    <CreditCard className="w-4 h-4 text-blue-600" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm font-semibold text-slate-900">{account.bankName}</p>
+                    <p className="text-xs text-slate-500">{account.accountHolderName}</p>
+                  </div>
+                </div>
+              </Card>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

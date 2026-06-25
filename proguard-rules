@@ -1,0 +1,63 @@
+# EasyPay ProGuard Rules
+
+# Keep the main activity
+-keep public class com.easypay.MainActivity { *; }
+-keep public class com.easypay.NFCPaymentActivity { *; }
+-keep public class com.easypay.NFCBridge { *; }
+
+# Keep all public methods (for JavaScript interface)
+-keepclasseswithmembernames class com.easypay.** {
+    public <methods>;
+}
+
+# Keep native methods
+-keepclasseswithmembernames class * {
+    native <methods>;
+}
+
+# Keep enums
+-keepclassmembers enum * {
+    public static **[] values();
+    public static ** valueOf(java.lang.String);
+}
+
+# Keep Parcelable implementations
+-keep class * implements android.os.Parcelable {
+    public static final android.os.Parcelable$Creator *;
+}
+
+# Keep WebView
+-keepclassmembers class android.webkit.WebView {
+    public *;
+}
+
+# Keep OkHttp
+-dontwarn okhttp3.**
+-dontwarn okio.**
+-keep class okhttp3.** { *; }
+-keep class okio.** { *; }
+
+# Keep Gson
+-keep class com.google.gson.** { *; }
+-keepclassmembers class * {
+    @com.google.gson.annotations.SerializedName <fields>;
+}
+
+# Keep AndroidX
+-keep class androidx.** { *; }
+-keep interface androidx.** { *; }
+
+# Remove logging
+-assumenosideeffects class android.util.Log {
+    public static *** d(...);
+    public static *** v(...);
+    public static *** i(...);
+}
+
+# Optimization
+-optimizationpasses 5
+-dontusemixedcaseclassnames
+-verbose
+
+# Rename obfuscated classes to something meaningful
+-repackageclasses 'com.easypay.obfuscated'

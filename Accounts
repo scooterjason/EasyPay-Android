@@ -1,0 +1,138 @@
+import { trpc } from "@/lib/trpc";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { maskAccountNumber } from "@/lib/maskAccount";
+import { Plus, Trash2, CreditCard } from "lucide-react";
+import { toast } from "sonner";
+import { useLocation } from "wouter";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { useState } from "react";
+
+export default function Accounts() {
+  const [, navigate] = useLocation();
+  const [deleteId, setDeleteId] = useState<number | null>(null);
+  const utils = trpc.useUtils();
+
+  const { data: accounts, isLoading } = trpc.bankAccounts.list.useQuery();
+  const deleteMutation = trpc.bankAccounts.delete.useMutation({
+    onSuccess: () => {
+      toast.success("Account deleted successfully");
+      utils.bankAccounts.list.invalidate();
+      setDeleteId(null);
+    },
+    onError: (error) => {
+      toast.error(error.message || "Failed to delete account");
+    },
+  });
+
+  const handleDelete = async () => {
+    if (deleteId) {
+      await deleteMutation.mutateAsync({ id: deleteId });
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 pb-20">
+      {/* Header */}
+      <div className="sticky top-0 z-10 bg-white border-b border-slate-200 shadow-sm">
+        <div className="flex items-center justify-between px-4 py-4">
+          <h1 className="text-lg font-semibold text-slate-900">My Bank Accounts</h1>
+          <button
+            onClick={() => navigate("/add-account")}
+            className="p-2 hover:bg-blue-50 rounded-lg transition-colors min-h-12 min-w-12 flex items-center justify-center"
+            aria-label="Add bank account"
+          >
+            <Plus className="w-5 h-5 text-blue-600" />
+          </button>
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="px-4 py-6">
+        {isLoading ? (
+          <div className="space-y-4">
+            {[1, 2, 3].map((i) => (
+              <Skeleton key={i} className="h-24 rounded-lg" />
+            ))}
+          </div>
+        ) : accounts && accounts.length > 0 ? (
+          <div className="space-y-4">
+            {accounts.map((account) => (
+              <Card
+                key={account.id}
+                className="p-4 border-0 shadow-md hover:shadow-lg transition-shadow cursor-pointer"
+                onClick={() => navigate(`/tap-to-pay?accountId=${account.id}`)}
+              >
+                <div className="flex items-start justify-between">
+                  <div className="flex items-start gap-4 flex-1">
+                    <div className="p-3 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg">
+                      <CreditCard className="w-6 h-6 text-white" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="font-semibold text-slate-900">{account.bankName}</p>
+                      <p className="text-sm text-slate-600 mt-1">{account.accountHolderName}</p>
+                      <p className="text-sm font-mono text-slate-500 mt-2">
+                        {maskAccountNumber(account.accountNumber)}
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setDeleteId(account.id);
+                    }}
+                    className="p-2 hover:bg-red-50 rounded-lg transition-colors min-h-12 min-w-12 flex items-center justify-center"
+                    aria-label="Delete account"
+                  >
+                    <Trash2 className="w-5 h-5 text-red-500" />
+                  </button>
+                </div>
+              </Card>
+            ))}
+          </div>
+        ) : (
+          <div className="flex flex-col items-center justify-center py-12">
+            <div className="p-4 bg-slate-100 rounded-full mb-4">
+              <CreditCard className="w-8 h-8 text-slate-400" />
+            </div>
+            <p className="text-slate-600 font-medium mb-4">No bank accounts yet</p>
+            <Button
+              onClick={() => navigate("/add-account")}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg"
+            >
+              Add Your First Account
+            </Button>
+          </div>
+        )}
+      </div>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={deleteId !== null} onOpenChange={(open) => !open && setDeleteId(null)}>
+        <AlertDialogContent>
+          <AlertDialogTitle>Delete Account?</AlertDialogTitle>
+          <AlertDialogDescription>
+            This action cannot be undone. The account will be permanently deleted.
+          </AlertDialogDescription>
+          <div className="flex gap-3 justify-end">
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDelete}
+              disabled={deleteMutation.isPending}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              {deleteMutation.isPending ? "Deleting..." : "Delete"}
+            </AlertDialogAction>
+          </div>
+        </AlertDialogContent>
+      </AlertDialog>
+    </div>
+  );
+}

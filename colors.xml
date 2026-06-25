@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Primary Colors - Vibrant Blue & Teal -->
+    <color name="primary">#0066FF</color>
+    <color name="primary_dark">#0052CC</color>
+    <color name="primary_light">#3385FF</color>
+
+    <!-- Secondary Colors - Energetic Orange & Green -->
+    <color name="secondary">#FF6B35</color>
+    <color name="secondary_dark">#E55A2B</color>
+    <color name="secondary_light">#FF8A5B</color>
+
+    <!-- Accent Colors -->
+    <color name="accent">#00D4FF</color>
+    <color name="accent_dark">#00B8D4</color>
+    <color name="accent_light">#33E0FF</color>
+
+    <!-- Success Color -->
+    <color name="success">#00C853</color>
+    <color name="success_light">#66FF99</color>
+
+    <!-- Warning Color -->
+    <color name="warning">#FFA500</color>
+    <color name="warning_light">#FFB84D</color>
+
+    <!-- Error Color -->
+    <color name="error">#FF3B30</color>
+    <color name="error_light">#FF6B66</color>
+
+    <!-- Neutral Colors -->
+    <color name="background">#F8F9FA</color>
+    <color name="surface">#FFFFFF</color>
+    <color name="surface_variant">#F0F2F5</color>
+
+    <!-- Text Colors -->
+    <color name="text_primary">#1F2937</color>
+    <color name="text_secondary">#6B7280</color>
+    <color name="text_tertiary">#9CA3AF</color>
+    <color name="text_disabled">#D1D5DB</color>
+
+    <!-- White & Black -->
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+
+    <!-- Gradient Colors -->
+    <color name="gradient_start">#0066FF</color>
+    <color name="gradient_end">#00D4FF</color>
+</resources>
